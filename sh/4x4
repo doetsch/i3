@@ -1,0 +1,38 @@
+#! /bin/bash
+
+TL=https://www.coinigy.com/main/markets/$2
+TR=https://www.coinigy.com/main/markets/$3
+BL=https://www.coinigy.com/main/markets/$4
+BR=https://www.coinigy.com/main/markets/$5
+
+load=`cat /proc/stat | grep '^cpu ' | tr -s ' ' | cut -d ' ' -f 2`
+ncores=`cat /proc/stat | grep '^cpu ' | tr -s ' ' | cut -d ' ' -f 3`
+load=$[ $load / 100000 - $ncores / 2 + 3 ];
+if [ $load -le 0 ];then load=1;fi
+workspace="workspace $1"
+browser="$workspace;exec google-chrome-stable --new-window"
+maximize=0.5
+
+load=2
+maximize=2
+
+i3-msg "$workspace;move workspace to DP-1;kill;focus parent;kill;focus parent;kill;focus parent;kill;layout splith;"
+i3-msg "$browser $TL"
+sleep $load
+i3-msg "$browser $TR;"
+sleep $load
+i3-msg "split v;$browser $BR;"
+sleep $load
+i3-msg "focus left;split v;$browser $BL"
+sleep $maximize
+xdotool key F11 && sleep $maximize && i3-msg "fullscreen toggle;focus up"
+sleep $maximize
+xdotool key F11 && sleep $maximize && i3-msg "fullscreen toggle;focus right"
+sleep $maximize
+xdotool key F11 && sleep $maximize && i3-msg "fullscreen toggle;focus down"
+sleep $maximize
+xdotool key F11 && sleep $maximize && i3-msg "fullscreen toggle;focus left"
+xdotool key Control_L+Shift_L+f && i3-msg "focus up"
+xdotool key Control_L+Shift_L+f && i3-msg "focus right"
+xdotool key Control_L+Shift_L+f && i3-msg "focus down"
+xdotool key Control_L+Shift_L+f && i3-msg "focus left"
