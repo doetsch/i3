@@ -1,3 +1,3 @@
 [submodule "bumblebee-status"]
 	path = bumblebee-status
-	url = ./bumblebee-status/.git
+	url = https://github.com/verc/bumblebee-status
