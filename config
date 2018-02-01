@@ -177,7 +177,7 @@ exec --no-startup-id xrandr --output HDMI-2 --off --output HDMI-1 --off --output
 font pango:Terminus 30px
 
 # Background image
-exec --no-startup-id feh --bg-scale /home/creon/Pictures/wallpapers/balkan-anemone-flower-blossom-bloom-73813.jpeg
+exec --no-startup-id feh --bg-scale $HOME/.config/i3/wallpaper.png
 
 # Workspaces
 workspace 1 output DP-2
