@@ -1,0 +1,27 @@
+#! /bin/bash
+
+killall -s SIGKILL signal-desktop && sleep 1
+signal-desktop &
+sleep 1.5
+i3-msg "move scratchpad;scratchpad show"
+sleep 1
+i3-msg "resize shrink width 500 px or 500 ppt;resize shrink height 500 px or 500 ppt"
+sleep 1
+kt=0.15
+xdotool key Tab && sleep $kt
+xdotool key Control_L+0 && sleep $kt
+xdotool key Control_L+0 && sleep $kt
+xdotool key Control_L+0 && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+minus && sleep $kt
+xdotool key Control_L+minus && sleep $kt
+xdotool key Control_L+plus && sleep $kt
+xdotool key Control_L+plus && sleep $kt

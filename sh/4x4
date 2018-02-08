@@ -16,7 +16,7 @@ maximize=0.5
 load=2
 maximize=2
 
-i3-msg "$workspace;move workspace to DP-1;kill;focus parent;kill;focus parent;kill;focus parent;kill;layout splith;"
+i3-msg "$workspace;move workspace to DP-2;kill;focus parent;kill;focus parent;kill;focus parent;kill;layout splith;"
 i3-msg "$browser $TL"
 sleep $load
 i3-msg "$browser $TR;"
