@@ -159,7 +159,7 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 bar {
         font pango:DejaVu Sans Mono, FontAwesome 12
-        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m flippening pasink nic traffic cpu sensors disk:nvme memory date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nvme.format="{percent:05.02f}%" nvme.path=/home/creon time.format="%H:%M" date.format="%a, %b %d %Y" -t solarized-dark-awesome
+        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m flippening pasink nic traffic cpu sensors disk:nvme memory date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nvme.format="{percent:05.02f}%" nvme.path=$HOME time.format="%H:%M" date.format="%a, %b %d %Y" -t solarized-dark-awesome
         tray_output primary
 }
 
@@ -169,7 +169,7 @@ bar {
 bindcode $mod+49 move scratchpad
 bindcode $mod+94 scratchpad show
 bindsym $mod+Tab move scratchpad;scratchpad show
-bindsym $mod+q exec --no-startup-id /home/creon/.config/i3/sh/incws 3
+bindsym $mod+q exec --no-startup-id $HOME/.config/i3/sh/incws 3
 
 # Pulse Audio controls
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume `pactl list sinks | grep -B2 3430313734335530-00.analog-stereo | grep Sink | cut -d '#' -f 2` +1.25%
@@ -187,6 +187,8 @@ bindsym $mod+x exec playerctl play-pause
 # Set monitors
 exec --no-startup-id xrandr --output DP-0 --mode 2560x1440 --pos 0x0 --rate 120 --output DP-4 --mode 2560x1440 --pos 2560x0 --rate 120 --output DP-2 --mode 2560x1440 --pos 5120x0 --rate 120
 #font pango:Terminus 30px
+
+exec --no-startup-id xmodmap ~/.Xmodmap
 
 # Background image
 exec --no-startup-id feh --bg-scale $HOME/.config/i3/wallpaper.png
