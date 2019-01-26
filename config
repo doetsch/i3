@@ -138,16 +138,16 @@ mode "resize" {
         # Pressing right will grow the window’s width.
         # Pressing up will shrink the window’s height.
         # Pressing down will grow the window’s height.
-        bindsym j resize shrink width 5 px or 5 ppt
-        bindsym k resize grow height 5 px or 5 ppt
-        bindsym l resize shrink height 5 px or 5 ppt
-        bindsym odiaeresis resize grow width 5 px or 5 ppt
+        bindsym j resize shrink width 3 px or 3 ppt
+        bindsym k resize grow height 3 px or 3 ppt
+        bindsym l resize shrink height 3 px or 3 ppt
+        bindsym odiaeresis resize grow width 3 px or 3 ppt
 
         # same bindings, but for the arrow keys
-        bindsym Left resize shrink width 5 px or 5 ppt
-        bindsym Down resize grow height 5 px or 5 ppt
-        bindsym Up resize shrink height 5 px or 5 ppt
-        bindsym Right resize grow width 5 px or 5 ppt
+        bindsym Left resize shrink width 3 px or 3 ppt
+        bindsym Down resize grow height 3 px or 3 ppt
+        bindsym Up resize shrink height 3 px or 3 ppt
+        bindsym Right resize grow width 3 px or 3 ppt
 
         # back to normal: Enter or Escape
         bindsym Return mode "default"
@@ -205,9 +205,10 @@ workspace 3 output DP-2
 # Shortcuts
 bindsym $mod+F1 exec --no-startup-id firefox
 bindsym $mod+F2 exec --no-startup-id google-chrome-stable
-bindsym $mod+F3 exec --no-startup-id brave
+bindsym $mod+F3 exec --no-startup-id brave-browser
 bindsym $mod+F4 exec --no-startup-id $HOME/.config/i3/sh/signal
 bindsym $mod+F5 exec --no-startup-id nautilus
+bindsym $mod+F6 exec --no-startup-id env XDG_CURRENT_DESKTOP=GNOME gnome-control-center
 
 # Appearance
 new_window 1pixel
