@@ -163,7 +163,7 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 bar {
         font pango:DejaVu Sans Mono, FontAwesome 11
-        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m flippening pasink nic traffic cpu sensors disk:nvme memory hue date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nvme.format="{percent:05.02f}%" nvme.path=$HOME time.format="%H:%M" date.format="%a, %b %d %Y" hue.bridge=192.168.178.20 hue.group=Desk hue.sensor=Desk hue.action="google-chrome http://192.168.178.23:8523/" hue.rec=$HOME/.config/i3/scenes -t solarized-dark-awesome
+        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m flippening pasink nic traffic cpu sensors disk:nvme memory hue date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nvme.format="{percent:05.02f}%" nvme.path=$HOME time.format="%H:%M" date.format="%a, %b %d %Y" hue.bridge=192.168.12.27 hue.group=Desk hue.sensor=Desk hue.plug="Plug Desk" hue.rec=$HOME/.config/i3/scenes -t solarized-dark-awesome
         tray_output primary
 }
 
