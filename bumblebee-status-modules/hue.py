@@ -21,8 +21,14 @@ import bumblebee.util
 import bumblebee.input
 import bumblebee.output
 import bumblebee.engine
-import i3
 from phue import Bridge, Group
+from _thread import start_new_thread
+from threading import Lock
+import datetime
+import json
+import random
+import gzip
+from os import listdir
 
 class Module(bumblebee.engine.Module):
     def __init__(self, engine, config):
@@ -36,9 +42,6 @@ class Module(bumblebee.engine.Module):
             for group_id, group in self.bridge.get_group().items():
               if group['name'] == self.parameter("group", ""):
                 break
-            for scene in self.bridge.scenes:
-              if scene.name == self.parameter("scene", "Concentrate"):
-                break
             break
           except:
             self.text = "error: could not connect to bridge at: " + self.parameter("bridge", "")
@@ -48,67 +51,119 @@ class Module(bumblebee.engine.Module):
           self.text = "error: unknown group: " + self.parameter("group", "")
           return
 
-        if scene.name != self.parameter("scene", "Concentrate"):
-          self.text = "error: unknown scene: " + self.parameter("scene", "Concentrate")
-          return
-
-        i3.Subscription(self.i3sub, 'workspace')
-
         self.group = Group(self.bridge, int(group_id))
-        self.scene = scene
-        self.brightness = self.group.brightness - self.group.brightness % 5
-        self.original_brightness = self.group.brightness
-        self.modify_brightness = False
+        self.scene_ids = set([l.light_id for l in self.group.lights])
+        self.scene_idx = len(self.bridge.scenes)
+        self.brightness = 0
+        self.base_brightness = self.group.brightness
+        self.modify_brightness = True
 
         self._nextcheck = 0
         self._tempcheck = 0
         self._statecheck = 0
+        self.lock = Lock()
+        self.lock.acquire()
+        start_new_thread(self.play, ())
         self.on = self.group.on
         self._interval = int(self.parameter("interval", "1"))
 
         engine.input.register_callback(self, button=bumblebee.input.LEFT_MOUSE,
-            cmd=self.click)
+                                       cmd=self.click)
         engine.input.register_callback(self, button=bumblebee.input.MIDDLE_MOUSE,
                                        cmd=self.middle)
         engine.input.register_callback(self, button=bumblebee.input.RIGHT_MOUSE,
-                                       cmd=self.parameter("action", "luminance"))
+                                       cmd=self.rightclick)
+                                       #cmd=self.parameter("action", "luminance"))
         engine.input.register_callback(self, button=bumblebee.input.WHEEL_UP,
                                        cmd=self.increase_brightness)
         engine.input.register_callback(self, button=bumblebee.input.WHEEL_DOWN,
                                        cmd=self.decrease_brightness)
 
-        self.text = "%d%%" % self.brightness
-        self.update(None)
+        self.text = "%d%%" % (100 * self.brightness / 255)
+        self.middle()
 
-    def i3sub(self, event, data, subscription):
-      if event['change'] == 'urgent':
-        for node in event['current']['floating_nodes'][0]['nodes']:
-          if node['name'] == 'Signal':
-            if node['urgent']:
-              self.group.on = False
-            else:
-              self.group.on = True
+    def rightclick(self, e=None):
+      lights = self.bridge.get_light_objects('name')
+      if self.parameter("plug", "") in lights:
+        lights[self.parameter("plug", "")].on = not lights[self.parameter("plug", "")].on
 
     def click(self, e=None):
       self.group.on = self.on = not self.group.on
       self._statecheck = int(time.time()) + 1
 
+    def play(self):
+      dir = self.parameter('rec', '.')
+      keys = ['night','morning','day','evening']
+      models = {k: [] for k in keys}
+      for k in models:
+        for f in listdir(dir + '/' + k):
+          if f.endswith('.gz'):
+            models[k].append(json.loads(gzip.open(dir + '/' + k + '/' + f).read()))
+      speed = 0.1
+      key = ''
+      while True:
+        self.lock.acquire()
+        now = datetime.datetime.now()
+        if now.hour < 5:
+          hour = 0
+        elif now.hour < 10:
+          hour = 1
+        elif now.hour < 18:
+          hour = 2
+        else:
+          hour = 3
+        if keys[hour] != key:
+          key = keys[hour]
+          seed = now.year * 10000 + now.month * 100 + now.day
+          var = int(seed % len(models[key]))
+          t = int(seed % len(models[key][var]))
+          while models[key][var][t][1] < 2:
+            t = (t + 1) % len(models[key][var])
+        x = models[key][var][t]
+        t = (t + 1) % len(models[key][var])
+        try:
+          lights = self.bridge.get_light_objects('name')
+          for l in x[0]:
+            if x[0][l][2] > 0:
+              lights[l].transitiontime = max(int(10 * x[0][l][2] / speed), 1)
+              lights[l].xy = x[0][l][0]
+              lights[l].brightness = min(max(x[0][l][1] + self.brightness,0),255)
+        except:
+          self.text = "play error"
+        self.lock.release()
+        time.sleep(x[1] / speed)
+
     def middle(self, e=None):
-      self.bridge.activate_scene(self.group.group_id, self.scene.scene_id)
+      if self.scene_idx == len(self.bridge.scenes):
+        self.group.on = not self.group.on
+        time.sleep(1.0)
+        self.group.on = not self.group.on
+        self.lock.release()
+      else:
+        if self.scene_idx == 0:
+          self.lock.acquire()
+        self.bridge.activate_scene(self.group.group_id, self.bridge.scenes[self.scene_idx].scene_id)
+      self.scene_idx = (self.scene_idx + 1) % (len(self.bridge.scenes) + 1)
+      while self.scene_idx < len(self.bridge.scenes):
+        if any([l in self.scene_ids for l in self.bridge.scenes[self.scene_idx].lights]):
+          break
+        self.scene_idx = (self.scene_idx + 1) % (len(self.bridge.scenes) + 1)
 
     def increase_brightness(self, e=None):
       if self.brightness >= 255: return
       self.brightness += 5
-      self.text = " %d%%" % (100 * (self.brightness / 255.), )
-      self.modify_brightness = True
+      self.text = "%d%%" % (100 * self.brightness / 255)
       self._nextcheck = int(time.time()) + self._interval
+      self._tempcheck = int(time.time()) + self._interval + 3
+      self.modify_brightness = True
 
     def decrease_brightness(self, e=None):
-      if self.brightness <= 0: return
+      if self.brightness <= -255: return
       self.brightness -= 5
-      self.text = " %d%%" % (100 * (self.brightness / 255.), )
-      self.modify_brightness = True
+      self.text = "%d%%" % (100 * self.brightness / 255)
       self._nextcheck = int(time.time()) + self._interval
+      self._tempcheck = int(time.time()) + self._interval + 3
+      self.modify_brightness = True
 
     def make(self, widget):
       return self.text.strip()
@@ -128,16 +183,9 @@ class Module(bumblebee.engine.Module):
       if self._nextcheck < int(time.time()) and self.modify_brightness:
         self._nextcheck = int(time.time()) + self._interval
         try:
-          group_brightness = self.group.brightness
-          if self.brightness != group_brightness:
-            if self.original_brightness == group_brightness:
-              self.group.brightness = self.brightness
-              self.original_brightness = self.brightness
-            else:
-              self.brightness = group_brightness
-              self.original_brightness = group_brightness
+          self.group.brightness = min(max(self.base_brightness + self.brightness,0),255)
+          self._tempcheck = int(time.time()) - 1
           self.modify_brightness = False
-          self._tempcheck = int(time.time()) + 5
         except:
           self.text = "brightness error"
       if self._tempcheck < int(time.time()):
@@ -156,4 +204,4 @@ class Module(bumblebee.engine.Module):
                 break
             self.text = "%.1f°" % (float(sensors['temperature']['temperature'])/100,)
         except:
-          self.text = "temperature error"
+          self.text = "sensor error"
