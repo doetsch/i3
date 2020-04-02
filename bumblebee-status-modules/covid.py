@@ -20,8 +20,8 @@ class Module(bumblebee.engine.Module):
         )
         self.text = ""
         self._nextcheck = 0
-        self._interval = int(self.parameter("interval", "30"))
-        self._country = self.parameter('country', 'Germany')
+        self._interval = int(self.parameter("interval", "300"))
+        self._country = self.parameter("country", "Germany")
 
     def make(self, widget):
         return self.text.strip()
