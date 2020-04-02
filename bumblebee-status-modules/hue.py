@@ -101,6 +101,7 @@ class Module(bumblebee.engine.Module):
             models[k].append(json.loads(gzip.open(dir + '/' + k + '/' + f).read()))
       speed = 0.1
       key = ''
+      lights = self.bridge.get_light_objects('name')
       while True:
         self.lock.acquire()
         now = datetime.datetime.now()
@@ -122,12 +123,18 @@ class Module(bumblebee.engine.Module):
         x = models[key][var][t]
         t = (t + 1) % len(models[key][var])
         try:
-          lights = self.bridge.get_light_objects('name')
+          #lights = self.bridge.get_light_objects('name')
           for l in x[0]:
             if x[0][l][2] > 0:
               lights[l].transitiontime = max(int(10 * x[0][l][2] / speed), 1)
               lights[l].xy = x[0][l][0]
-              lights[l].brightness = min(max(x[0][l][1] + self.brightness,0),255)
+              lights[l].brightness = min(max(int(x[0][l][1]) + self.brightness,0),255)
+              if l == 'Desk Go':
+                for d in ['TV left', 'TV right']:
+                  lights[d].transitiontime = max(int(10 * x[0][l][2] / speed), 1)
+                  lights[d].xy = x[0][l][0]
+                  lights[d].brightness = min(max(int(x[0][l][1]) + self.brightness,0),255)
+          self.group.brightness = min(max(self.base_brightness + self.brightness,0),255)
         except:
           self.text = "play error"
         self.lock.release()

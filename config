@@ -33,11 +33,11 @@ font pango:monospace 8
 floating_modifier $mod
 
 # start a terminal
-bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+Return exec gnome-terminal
 
 # kill focused window
 bindsym $mod+Shift+q kill
-bindsym $mod+Shift+a kill;focus parent;kill;focus parent;kill;focus parent;kill
+#bindsym $mod+Shift+a kill;focus parent;kill;focus parent;kill;focus parent;kill
 
 # start dmenu (a program launcher)
 #bindsym $mod+d exec dmenu_run
@@ -126,6 +126,17 @@ bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
 
+bindsym $mod+Control+Shift+1 move container to workspace 11
+bindsym $mod+Control+Shift+2 move container to workspace 12
+bindsym $mod+Control+Shift+3 move container to workspace 13
+bindsym $mod+Control+Shift+4 move container to workspace 14
+bindsym $mod+Control+Shift+5 move container to workspace 15
+bindsym $mod+Control+Shift+6 move container to workspace 16
+bindsym $mod+Control+Shift+7 move container to workspace 17
+bindsym $mod+Control+Shift+8 move container to workspace 18
+bindsym $mod+Control+Shift+9 move container to workspace 19
+bindsym $mod+Control+Shift+0 move container to workspace 20
+
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
@@ -159,12 +170,16 @@ mode "resize" {
 
 bindsym $mod+r mode "resize"
 
+# Enable popup during fullscreen
+popup_during_fullscreen smart
+
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
         font pango:DejaVu Sans Mono, FontAwesome 11
-        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m flippening pasink nic traffic cpu sensors disk:nvme memory hue date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nvme.format="{percent:05.02f}%" nvme.path=$HOME time.format="%H:%M" date.format="%a, %b %d %Y" hue.bridge=192.168.12.27 hue.group=Desk hue.sensor=Desk hue.plug="Plug Desk" hue.rec=$HOME/.config/i3/scenes -t solarized-dark-awesome
+        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m covid flippening pasink nic traffic vm-status cpu sensors disk:nvme memory hue date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nvme.format="{percent:05.02f}%" nvme.path=$HOME time.format="%H:%M" date.format="%a, %b %d %Y" hue.bridge=192.168.12.27 hue.group=Desk hue.sensor=Desk hue.plug="Plug Desk" hue.rec=$HOME/.config/i3/scenes -t solarized-dark-awesome
         tray_output primary
+
 }
 
 # set numlock
@@ -186,21 +201,27 @@ bindsym Shift+Control+Mod1+c exec --no-startup-id $HOME/.config/i3/sh/incws -3
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume `pactl list sinks | grep -B3 "Simultaneous output to" | grep Sink | cut -d '#' -f 2` +1.25%
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume `pactl list sinks | grep -B3 "Simultaneous output to" | grep Sink | cut -d '#' -f 2` -1.25%
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute `pactl list sinks | grep -B3 "Simultaneous output to" | grep Sink | cut -d '#' -f 2` toggle
-bindsym XF86AudioPlay exec playerctl play-pause
-bindsym XF86AudioPause exec playerctl play-pause
-bindsym XF86AudioStop exec rhythmbox
-bindsym XF86AudioNext exec playerctl next
-bindsym XF86AudioPrev exec playerctl previous
+#bindsym XF86AudioPlay exec playerctl play-pause
+#bindsym XF86AudioPause exec playerctl play-pause
+#bindsym XF86AudioStop exec rhythmbox
+#bindsym XF86AudioNext exec playerctl next
+#bindsym XF86AudioNext kill;focus parent;kill;focus parent;kill;focus parent;kill;focus parent;kill
+#bindsym XF86AudioPrev exec playerctl previous
+#bindsym XF86AudioPrev kill
+
+bindsym XF86AudioPrev exec --no-startup-id virsh start win10
+bindsym XF86AudioPlay exec --no-startup-id $HOME/.config/i3/sh/vm
+bindsym XF86AudioNext exec --no-startup-id virsh destroy win10
 
 # Set monitors
-exec --no-startup-id xrandr --output DP-0 --mode 2560x1440 --pos 0x0 --rate 144 --output DP-4 --mode 2560x1440 --pos 2560x0 --rate 144 --output DP-2 --mode 2560x1440 --pos 5120x0 --rate 144
+#exec --no-startup-id xrandr --output DP-0 --mode 2560x1440 --pos 0x0 --rate 144 --output DP-4 --mode 2560x1440 --pos 2560x0 --rate 144 --output DP-2 --mode 2560x1440 --pos 5120x0 --rate 144
 #font pango:Terminus 30px
 
 #exec --no-startup-id xmodmap ~/.Xmodmap
-exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+#exec --no-startup-id /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 
 # Background image
-exec --no-startup-id feh --bg-scale $HOME/.config/i3/wallpaper.png
+#exec --no-startup-id feh --bg-scale $HOME/.config/i3/wallpaper.png
 
 # Applets
 exec --no-startup-id nm-applet
@@ -212,16 +233,25 @@ workspace 2 output DP-4
 workspace 3 output DP-2
 
 # Shortcuts
-bindsym $mod+F1 exec --no-startup-id firefox
+bindsym $mod+Shift+Return exec --no-startup-id firefox
 bindsym $mod+F2 exec --no-startup-id google-chrome-stable
-bindsym $mod+F3 exec --no-startup-id brave-browser
-bindsym $mod+F4 exec --no-startup-id $HOME/.config/i3/sh/signal
+bindsym $mod+F3 exec --no-startup-id thunderbird
+bindsym $mod+F4 exec --no-startup-id $HOME/.config/i3/sh/signal # signal-desktop
+
 bindsym $mod+F5 exec --no-startup-id nautilus
 bindsym $mod+F6 exec --no-startup-id env XDG_CURRENT_DESKTOP=GNOME gnome-control-center
+
+bindsym $mod+F9 exec --no-startup-id virsh suspend win10
+bindsym $mod+F10 exec --no-startup-id virsh shutdown win10
+bindsym $mod+F11 exec --no-startup-id virsh destroy win10
+bindsym $mod+F12 exec --no-startup-id virsh start win10
+
+bindsym $mod+y workspace back_and_forth
 
 # Appearance
 new_window 1pixel
 focus_follows_mouse no
+mouse_warping none
 
 # Desktop screenshot
 bindsym --release Print exec "scrot ~/$(date --iso-8601='seconds').png -m -e 'xclip -selection c -t image/png < $f'"
@@ -229,3 +259,29 @@ bindsym --release Print exec "scrot ~/$(date --iso-8601='seconds').png -m -e 'xc
 bindsym --release Mod1+Sys_Req exec "import -window `xwininfo | awk '/.*Window id:.*/ {print $4}'` ~/$(date --iso-8601='seconds').png"
 # Selection screenshot
 bindsym --release Shift+Print exec "scrot ~/$(date --iso-8601='seconds').png -s -e 'xclip -selection c -t image/png < $f'"
+
+# regolith
+
+# Cause Settings app to float above tiled windows
+floating_maximum_size -1 x -1
+for_window [class="Gnome-control-center"] floating enable
+
+floating_maximum_size -1 x -1
+for_window [class="Signal"] floating enable
+
+# i3-snapshot for load/save current layout
+bindsym $mod+comma  exec /usr/bin/i3-snapshot -o > /tmp/i3-snapshot
+bindsym $mod+period exec /usr/bin/i3-snapshot -c < /tmp/i3-snapshot
+
+# Start the installed regolith-compositor
+exec --no-startup-id /usr/share/regolith-compositor/init
+
+# Start Rofication for notifications
+exec --no-startup-id /usr/share/rofication/rofication-daemon.py
+bindsym $mod+n exec /usr/share/rofication/rofication-gui.py
+
+# Launch first time user experience script
+exec --no-startup-id /usr/bin/regolith-ftue
+
+# Hide the mouse pointer if unused for a duration
+exec --no-startup-id /usr/bin/unclutter -b
