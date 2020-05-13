@@ -41,6 +41,10 @@ class Module(bumblebee.engine.Module):
       if self._nextcheck < int(time.time()):
         self._nextcheck = int(time.time()) + self._interval
         try:
+          gas = requests.get('https://ethgasstation.info/api/ethgasAPI.json',timeout=5).json()['fast']
+        except:
+          gas = 1.0
+        try:
           eth = requests.get('https://api.coinmarketcap.com/v1/ticker/ethereum/?convert=USD',timeout=5).json()[0]
           btc = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/?convert=USD',timeout=5).json()[0]
         except:
@@ -56,4 +60,4 @@ class Module(bumblebee.engine.Module):
             return
         ratio = 100. * float(eth['market_cap_usd']) / float(btc['market_cap_usd'])
         icon = ['🌑','🌒','🌓','🌔','🌕'][min(int(ratio)//25,4)]
-        self.text = "Ξ %.2f Ƀ %.2f %s %.2f%%" % (float(eth['price_usd']),float(btc['price_usd']),icon,ratio)
+        self.text = "Ξ %.2f  %.2f  %d %s %.2f%%" % (float(eth['price_usd']),float(btc['price_usd']),gas // 10,icon,ratio)
