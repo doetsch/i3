@@ -23,6 +23,9 @@ class Module(bumblebee.engine.Module):
         self._interval = int(self.parameter("interval", "300"))
         self._country = self.parameter("country", "Germany")
 
+        engine.input.register_callback(self, button=bumblebee.input.LEFT_MOUSE,
+            cmd="xdg-open https://www.worldometers.info/coronavirus/")
+
     def make(self, widget):
         return self.text.strip()
 
