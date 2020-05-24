@@ -31,8 +31,8 @@ class Module(bumblebee.engine.Module):
         self._nextcheck = 0
         self._interval = int(self.parameter("interval", "30"))
 
-        #engine.input.register_callback(self, button=bumblebee.input.LEFT_MOUSE,
-        #    cmd="xdg-open https://www.livecoinwatch.com/")
+        engine.input.register_callback(self, button=bumblebee.input.LEFT_MOUSE,
+            cmd="xdg-open https://ethgasstation.info/")
 
     def make(self, widget):
         return self.text.strip()
@@ -60,4 +60,4 @@ class Module(bumblebee.engine.Module):
             return
         ratio = 100. * float(eth['market_cap_usd']) / float(btc['market_cap_usd'])
         icon = ['🌑','🌒','🌓','🌔','🌕'][min(int(ratio)//25,4)]
-        self.text = "Ξ %.2f  %.2f  %d %s %.2f%%" % (float(eth['price_usd']),float(btc['price_usd']),gas // 10,icon,ratio)
+        self.text = "Ξ %.2f  %.2f  %d %s %.2f%%" % (float(eth['price_usd']),float(btc['price_usd']),gas // 10,icon,ratio)

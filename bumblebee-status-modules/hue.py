@@ -29,6 +29,9 @@ import json
 import random
 import gzip
 from os import listdir
+from rgbxy import Converter
+
+import openrazer.client as rclient
 
 class Module(bumblebee.engine.Module):
     def __init__(self, engine, config):
@@ -64,6 +67,7 @@ class Module(bumblebee.engine.Module):
         self.lock = Lock()
         self.lock.acquire()
         start_new_thread(self.play, ())
+        start_new_thread(self.razer, ())
         self.on = self.group.on
         self._interval = int(self.parameter("interval", "1"))
 
@@ -122,8 +126,8 @@ class Module(bumblebee.engine.Module):
             t = (t + 1) % len(models[key][var])
         x = models[key][var][t]
         t = (t + 1) % len(models[key][var])
+
         try:
-          #lights = self.bridge.get_light_objects('name')
           for l in x[0]:
             if x[0][l][2] > 0:
               lights[l].transitiontime = max(int(10 * x[0][l][2] / speed), 1)
@@ -134,11 +138,37 @@ class Module(bumblebee.engine.Module):
                   lights[d].transitiontime = max(int(10 * x[0][l][2] / speed), 1)
                   lights[d].xy = x[0][l][0]
                   lights[d].brightness = min(max(int(x[0][l][1]) + self.brightness,0),255)
-          self.group.brightness = min(max(self.base_brightness + self.brightness,0),255)
+              #if l == 'Desk Center':
+              #  #hex = self.rgbxy.xy_to_hex(x[0][l][0][0],x[0][l][0][1],bri=min(max(int(x[0][l][1]) + self.brightness,0),255)/255.)
+              #  #rgb = tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
+              #  r, g, b = self.rgbxy.color.get_rgb_from_xy_and_brightness(x[0][l][0][0],x[0][l][0][1],min(max(int(x[0][l][1]) + self.brightness,0),255)/255.)
+              #  #r, g, b = self.rgbxy.color.get_rgb_from_xy(x[0][l][0][0],x[0][l][0][1])
+              #  self.razer = rclient.DeviceManager()
+              #  for device in self.razer.devices:
+              #    if device.name == 'Razer Huntsman Elite':
+              #      device.fx.static(r, g, b)
+            self.group.brightness = min(max(self.base_brightness + self.brightness,0),255)
         except:
           self.text = "play error"
         self.lock.release()
         time.sleep(x[1] / speed)
+
+    def razer(self):
+      rgbxy = Converter()
+      manager = rclient.DeviceManager()
+      for device in manager.devices:
+        if device.name == 'Razer Huntsman Elite':
+          break
+      src = self.bridge.get_light_objects('name')['Desk Center']
+      while True:
+        src = self.bridge.get_light_objects('name')['Desk Center']
+        manager = rclient.DeviceManager()
+        for device in manager.devices:
+          if device.name == 'Razer Huntsman Elite':
+            break
+        r, g, b = rgbxy.color.get_rgb_from_xy_and_brightness(src.xy[0], src.xy[1], src.brightness)
+        device.fx.static(r, g, b)
+        time.sleep(3)
 
     def middle(self, e=None):
       if self.scene_idx == len(self.bridge.scenes):
