@@ -21,6 +21,7 @@ import bumblebee.input
 import bumblebee.output
 import bumblebee.engine
 from requests.exceptions import RequestException
+import urllib.request, urllib.error, urllib.parse
 
 class Module(bumblebee.engine.Module):
     def __init__(self, engine, config):
@@ -29,7 +30,7 @@ class Module(bumblebee.engine.Module):
         )
         self._curprice = ""
         self._nextcheck = 0
-        self._interval = int(self.parameter("interval", "30"))
+        self._interval = int(self.parameter("interval", "60"))
 
         engine.input.register_callback(self, button=bumblebee.input.LEFT_MOUSE,
             cmd="xdg-open https://ethgasstation.info/")
@@ -41,9 +42,19 @@ class Module(bumblebee.engine.Module):
       if self._nextcheck < int(time.time()):
         self._nextcheck = int(time.time()) + self._interval
         try:
-          gas = requests.get('https://ethgasstation.info/api/ethgasAPI.json',timeout=5).json()['fast']
+          gas = requests.get('https://ethgasstation.info/api/ethgasAPI.json?api-key=6d3c07016491f90ca5afede4b6a6a5a46c6283f1086ff8ee78dd6036cc74',timeout=30).json()['fast']
+          assert gas > 0
         except:
-          gas = 1.0
+          try:
+            r = requests.get('https://ethgasstation.info/')
+            content = str(r.content)
+            i = content.find("Recommended Gas Prices in Gwei")
+            i = content.find("count fast", i)
+            i = content.find('\\n', i) + 2
+            j = content.find('<', i)
+            gas = int(content[i:j].strip()) * 10
+          except:
+            gas = 0
         try:
           eth = requests.get('https://api.coinmarketcap.com/v1/ticker/ethereum/?convert=USD',timeout=5).json()[0]
           btc = requests.get('https://api.coinmarketcap.com/v1/ticker/bitcoin/?convert=USD',timeout=5).json()[0]

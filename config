@@ -180,7 +180,7 @@ popup_during_fullscreen smart
 # finds out, if available)
 bar {
         font pango:DejaVu Sans Mono, FontAwesome 11
-        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m pasink flippening weather vm-status cpu sensors disk:nvme memory hue date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nic.exclude="lo,virbr,docker,vboxnet,veth,enp2s0" traffic.exclude="lo,virbr,docker,vboxnet,veth,enp2s0" nvme.format="{percent:05.02f}%" nvme.path=$HOME time.format="%H:%M" date.format="%a, %b %d %Y" hue.bridge=192.168.12.27 hue.group=Desk hue.sensor=Desk hue.plug="Plug Desk" hue.rec=$HOME/.config/i3/scenes weather.location=Aachen weather.showcity=false weather.apikey=02661672fa5ed580a8ac58acc98312e7 -t solarized-dark-awesome
+        status_command $HOME/.config/i3/bumblebee-status/bumblebee-status -m pasink flippening vm-status cpu sensors disk:nvme memory hue weather date time -p memory.format="{percent:05.02f}%" traffic.states=up traffic.showname=false nic.states=up nic.exclude="lo,virbr,docker,vboxnet,veth,enp2s0" traffic.exclude="lo,virbr,docker,vboxnet,veth,enp2s0" nvme.format="{percent:05.02f}%" nvme.path=$HOME time.format="%H:%M" date.format="%a, %b %d %Y" hue.bridge=192.168.12.27 hue.group=Desk hue.sensor=Desk hue.plug="Plug Desk" hue.rec=$HOME/.config/i3/scenes weather.location=Aachen weather.showcity=false weather.apikey=02661672fa5ed580a8ac58acc98312e7 -t solarized-dark-awesome
         tray_output primary
         output HDMI-1
         output DP-4
@@ -222,7 +222,7 @@ bindsym XF86AudioPrev exec --no-startup-id playerctl previous
 #bindsym XF86AudioNext exec --no-startup-id virsh destroy win10
 
 # Set monitors
-#exec --no-startup-id xrandr --output DP-0 --mode 2560x1440 --pos 0x0 --rate 144 --output DP-4 --mode 2560x1440 --pos 2560x0 --rate 144 --output DP-2 --mode 2560x1440 --pos 5120x0 --rate 144
+#exec --no-startup-id xrandr --output HDMI-1 --mode 2560x1440 --pos 7680x0 --rate 60 --output DP-0 --mode 2560x1440 --pos 2560x0 --rate 144 --output DP-2 --mode 2560x1440 --pos 0x1440 --rate 144 --output DP-4 --mode 2560x1440 --pos 5120x0 --rate 144
 #font pango:Terminus 30px
 
 #exec --no-startup-id xmodmap ~/.Xmodmap
@@ -241,24 +241,25 @@ workspace 2 output DP-4
 workspace 3 output HDMI-1
 workspace 20 output DP-2
 exec --no-startup-id i3-msg "rename workspace 20 to ext"
-exec --no-startup-id display
+#exec --no-startup-id display
 
 # Shortcuts
 bindsym $mod+Shift+Return exec --no-startup-id firefox
+#bindsym $mod+F1 exec --no-startup-id firefox
 bindsym $mod+F2 exec --no-startup-id google-chrome-stable
 bindsym $mod+F3 exec --no-startup-id display #thunderbird
 bindsym $mod+F4 exec --no-startup-id $HOME/.config/i3/sh/signal # signal-desktop
 
 bindsym $mod+F5 exec --no-startup-id nautilus
 bindsym $mod+F6 exec --no-startup-id env XDG_CURRENT_DESKTOP=GNOME gnome-control-center
+bindsym $mod+F7 exec --no-startup-id openrazer-daemon -r
+bindsym $mod+F8 exec --no-startup-id $HOME/bin/vmfix
 
 bindsym $mod+F9 exec --no-startup-id virsh suspend win10
 bindsym $mod+F10 exec --no-startup-id virsh shutdown win10
 bindsym $mod+F11 exec --no-startup-id virsh destroy win10
 bindsym $mod+F12 exec --no-startup-id $HOME/.config/i3/sh/vm
 bindsym $mod+m exec --no-startup-id $HOME/.config/i3/sh/vm
-
-bindsym $mod+F8 exec --no-startup-id $HOME/bin/vmfix
 
 bindsym $mod+y workspace back_and_forth
 
@@ -291,11 +292,12 @@ bindsym $mod+period exec /usr/bin/i3-snapshot -c < /tmp/i3-snapshot
 exec --no-startup-id /usr/share/regolith-compositor/init
 
 # Start Rofication for notifications
-exec --no-startup-id /usr/share/rofication/rofication-daemon.py
-bindsym $mod+n exec /usr/share/rofication/rofication-gui.py
+#exec --no-startup-id /usr/share/rofication/rofication-daemon.py
+#bindsym $mod+n exec /usr/share/rofication/rofication-gui.py
+exec --no-startup-id /usr/bin/dunst
 
 # Launch first time user experience script
-exec --no-startup-id /usr/bin/regolith-ftue
+#exec --no-startup-id /usr/bin/regolith-ftue
 
 # Hide the mouse pointer if unused for a duration
 exec --no-startup-id /usr/bin/unclutter -b

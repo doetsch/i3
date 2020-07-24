@@ -30,6 +30,7 @@ import random
 import gzip
 from os import listdir
 from rgbxy import Converter
+import subprocess
 
 import openrazer.client as rclient
 
@@ -67,7 +68,10 @@ class Module(bumblebee.engine.Module):
         self.lock = Lock()
         self.lock.acquire()
         start_new_thread(self.play, ())
-        start_new_thread(self.razer, ())
+        start_new_thread(self.razer_all, ())
+        #start_new_thread(self.razer, ('Razer Huntsman Elite', 'Desk Center'))
+        #start_new_thread(self.razer, ('Razer Firefly Hyperflux', 'Desk Front Right'))
+        #start_new_thread(self.razer, ('Razer Mamba Wireless (Receiver)', 'Desk Front Left'))
         self.on = self.group.on
         self._interval = int(self.parameter("interval", "1"))
 
@@ -119,7 +123,7 @@ class Module(bumblebee.engine.Module):
           hour = 3
         if keys[hour] != key:
           key = keys[hour]
-          seed = now.year * 10000 + now.month * 100 + now.day
+          seed = now.year * 10000 + now.month * 100 + now.day - 1
           var = int(seed % len(models[key]))
           t = int(seed % len(models[key][var]))
           while models[key][var][t][1] < 2:
@@ -153,22 +157,31 @@ class Module(bumblebee.engine.Module):
         self.lock.release()
         time.sleep(x[1] / speed)
 
-    def razer(self):
+    def razer_all(self):
       rgbxy = Converter()
-      manager = rclient.DeviceManager()
-      for device in manager.devices:
-        if device.name == 'Razer Huntsman Elite':
-          break
-      src = self.bridge.get_light_objects('name')['Desk Center']
       while True:
-        src = self.bridge.get_light_objects('name')['Desk Center']
         manager = rclient.DeviceManager()
         for device in manager.devices:
           if device.name == 'Razer Huntsman Elite':
-            break
-        r, g, b = rgbxy.color.get_rgb_from_xy_and_brightness(src.xy[0], src.xy[1], src.brightness)
-        device.fx.static(r, g, b)
-        time.sleep(3)
+            src = self.bridge.get_light_objects('name')['Desk Center']
+            r, g, b = rgbxy.color.get_rgb_from_xy_and_brightness(src.xy[0], src.xy[1], src.brightness/255.)
+            device.fx.static(r, g, b)
+          elif device.name == 'Razer Firefly Hyperflux':
+            src = self.bridge.get_light_objects('name')['Desk Front Right']
+            r, g, b = rgbxy.color.get_rgb_from_xy_and_brightness(src.xy[0], src.xy[1], src.brightness/255.)
+            device.fx.static(r, g, b)
+        time.sleep(2)
+
+    def razer(self, device_name, light_name):
+      rgbxy = Converter()
+      while True:
+        manager = rclient.DeviceManager()
+        for device in manager.devices:
+          if device.name == device_name:
+            src = self.bridge.get_light_objects('name')[light_name]
+            r, g, b = rgbxy.color.get_rgb_from_xy_and_brightness(src.xy[0], src.xy[1], src.brightness/255.)
+            device.fx.static(r, g, b)
+        time.sleep(0.5)
 
     def middle(self, e=None):
       if self.scene_idx == len(self.bridge.scenes):
